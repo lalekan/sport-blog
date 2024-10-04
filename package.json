@@ -1,0 +1,20 @@
+{
+  "name": "sport-blog",
+  "version": "1.0.0",
+  "description": "Project planning link: <https://trello.com/invite/b/66fa1b59934207e1c362366b/ATTI813802fede4c62d7f3e78a99d8635343B22F6D73/blog-post-development>",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "express-session": "^1.18.0",
+    "method-override": "^3.0.0",
+    "mongoose": "^8.7.0"
+  }
+}
