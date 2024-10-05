@@ -70,29 +70,43 @@
     <h1><%= post.title %></h1>
     <p><%= post.content %></p>
 
-    <h3>Comments</h3>
-
-    <% if (post.comments.length === 0) { %>
-        <p>No comments yet</p>
-    <% } else { %>
-        <% post.comments.forEach((comment) => { %>
-            <div>
-                <p><strong>Comment by:</strong> <%= comment.commenterId.username %></p>
-                <p><%= comment.content %></p>
-                <p><em>Posted on: <%= comment.createdAt.toDateString() %></em></p>
-            </div>
-        <% }); %>
+    <!-- Check if the user is the owner of the post -->
+    <% if (user && user._id.toString() === post.user.toString()) { %>
+        <!-- Edit Post Button -->
+        <form action="/posts/<%= post._id %>/edit" method="GET">
+            <button type="submit">Edit Post</button>
+        </form>
+        <!-- Delete Post Button -->
+        <form action="/posts/<%= post._id %>?_method=DELETE" method="POST" style="display:inline;">
+            <button type="submit">Delete Post</button>
+        </form>
     <% } %>
-    
+
+    <h2>Comments</h2>
+    <ul>
+        <% post.comments.forEach(comment => { %>
+            <li>
+                <p><%= comment.content %> - <%= comment.commenterId.username %></p>
+                <!-- Check if the user is the owner of the comment -->
+                <% if (user && user._id.toString() === comment.commenterId._id.toString()) { %>
+                    <form action="/posts/<%= post._id %>/comments/<%= comment._id %>/edit" method="GET" style="display:inline;">
+                        <button type="submit">Edit Comment</button>
+                    </form>
+                    <form action="/posts/<%= post._id %>/comments/<%= comment._id %>?_method=DELETE" method="POST" style="display:inline;">
+                        <button type="submit">Delete Comment</button>
+                    </form>
+                <% } %>
+            </li>
+        <% }); %>
+    </ul>
 
     <h3>Add a Comment</h3>
     <form action="/posts/<%= post._id %>/comments" method="POST">
-        <label for="content">Add a Comment:</label>
-        <textarea name="content" id="content" required></textarea>
-    
-        <button type="submit">Submit Comment</button>
+        <textarea name="content" required></textarea>
+        <button type="submit">Add Comment</button>
     </form>
-    
+
+
 
     <p>
         <a href="/users/<%= post.userId %>/blogs">Back to Blogs</a>

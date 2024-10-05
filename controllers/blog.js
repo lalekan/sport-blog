@@ -5,10 +5,11 @@ const User = require('../models/user.js');
 const Post = require('../models/post.js');
 const Comment = require('../models/comment.js');
 const isSignedIn = require('../middleware/is-signed-in');
+const { isPostOwner, isCommentOwner } = require('../middleware/is-owner');
 
 //============== ROUTERS ================ //
 
-
+// Display all blogs for a user
 router.get('/users/:userId/blogs', isSignedIn, async (req, res) => {
     try {
         const blogs = await Post.find({ user: req.params.userId }).populate('comments');
@@ -22,6 +23,7 @@ router.get('/users/:userId/blogs', isSignedIn, async (req, res) => {
     }
 });
 
+// Display a single blog post with comments
 router.get('/users/:userId/blogs/:postId', async (req, res) => {
     try {
         const { userId, postId } = req.params;
@@ -46,12 +48,14 @@ router.get('/users/:userId/blogs/:postId', async (req, res) => {
     }
 });
 
-router.get('/users/:userId/new', async(req, res) => {
+// Display form to create a new blog
+router.get('/users/:userId/new', isSignedIn, async (req, res) => {
     const userId = req.params.userId;
-    const user = await User.findById(userId)
-    res.render('blog/new.ejs', { user })
-})
+    const user = await User.findById(userId);
+    res.render('blog/new.ejs', { user });
+});
 
+// Handle new blog creation
 router.post('/users/:userId/blogs', isSignedIn, async (req, res) => {
     try {
         const userId = req.params.userId;
@@ -72,8 +76,8 @@ router.post('/users/:userId/blogs', isSignedIn, async (req, res) => {
         // Update the user's posts array
         const user = await User.findById(userId);
         if (user) {
-            user.posts = [...user.posts, savedBlog._id]
-            console.log('Updated user posts:', user.posts)
+            user.posts.push(savedBlog._id);
+            console.log('Updated user posts:', user.posts);
             await user.save();
         }
 
@@ -84,6 +88,7 @@ router.post('/users/:userId/blogs', isSignedIn, async (req, res) => {
     }
 });
 
+// Handle new comment creation
 router.post('/posts/:postId/comments', isSignedIn, async (req, res) => {
     try {
         const postId = req.params.postId;
@@ -104,17 +109,18 @@ router.post('/posts/:postId/comments', isSignedIn, async (req, res) => {
         // Find the post and add the comment to it
         const post = await Post.findById(postId);
         if (post) {
-            post.comments.push(savedComment._id);  
+            post.comments.push(savedComment._id);
             await post.save();
         }
 
-        res.redirect(`/posts/${postId}`); 
+        res.redirect(`/posts/${postId}`);
     } catch (error) {
         console.error('Error adding comment:', error);
         res.status(500).send('Error adding comment.');
     }
 });
 
+// Display a single blog post
 router.get('/posts/:postId', async (req, res) => {
     try {
         const post = await Post.findById(req.params.postId)
@@ -122,11 +128,9 @@ router.get('/posts/:postId', async (req, res) => {
                 path: 'comments',
                 populate: {
                     path: 'commenterId',
-                    select: 'username'   
+                    select: 'username'
                 }
             });
-            console.log('Post with comments:', post);
-
 
         res.render('blog/show.ejs', { post, user: req.session.user });
     } catch (error) {
@@ -135,12 +139,68 @@ router.get('/posts/:postId', async (req, res) => {
     }
 });
 
+// Display edit form for a blog post
+router.get('/posts/:postId/edit', isSignedIn, isPostOwner, async (req, res) => {
+    try {
+        const post = await Post.findById(req.params.postId);
+        const blogs = await Post.find({ user: req.session.user._id }); 
+        res.render('blog/edit.ejs', { post, blogs, user: req.session.user }); 
+    } catch (error) {
+        res.status(500).send('Error displaying edit form.');
+    }
+});
 
 
+// Handle blog post update
+router.put('/posts/:postId', isSignedIn, isPostOwner, async (req, res) => {
+    try {
+        const post = await Post.findByIdAndUpdate(req.params.postId, req.body, { new: true });
+        res.redirect(`/posts/${post._id}`);
+    } catch (error) {
+        console.error('Error updating post:', error);
+        res.status(500).send('Error updating post.');
+    }
+});
 
+router.delete('/posts/:postId', isSignedIn, isPostOwner, async (req, res) => {
+    try {
+        await Post.findByIdAndDelete(req.params.postId);
+        res.redirect('/blogs');
+    } catch (error) {
+        console.error('Error deleting post:', error);
+        res.status(500).send('Error deleting post.');
+    }
+});
 
+router.get('/posts/:postId/comments/:commentId/edit', isSignedIn, isCommentOwner, async (req, res) => {
+    try {
+        const comment = await Comment.findById(req.params.commentId);
+        res.render('comments/edit.ejs', { comment, postId: req.params.postId });
+    } catch (error) {
+        console.error('Error displaying edit form:', error);
+        res.status(500).send('Error displaying edit form.');
+    }
+});
 
+router.put('/posts/:postId/comments/:commentId', isSignedIn, isCommentOwner, async (req, res) => {
+    try {
+        await Comment.findByIdAndUpdate(req.params.commentId, req.body, { new: true });
+        res.redirect(`/posts/${req.params.postId}`);
+    } catch (error) {
+        console.error('Error updating comment:', error);
+        res.status(500).send('Error updating comment.');
+    }
+});
 
+// Handle comment deletion
+router.delete('/posts/:postId/comments/:commentId', isSignedIn, isCommentOwner, async (req, res) => {
+    try {
+        await Comment.findByIdAndDelete(req.params.commentId);
+        res.redirect(`/posts/${req.params.postId}`);
+    } catch (error) {
+        console.error('Error deleting comment:', error);
+        res.status(500).send('Error deleting comment.');
+    }
+});
 
-
-module.exports = router
+module.exports = router;
