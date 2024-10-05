@@ -45,27 +45,31 @@ router.get('/sign-out', (req, res) => {
 });
 
 router.post('/sign-up', async (req, res) => {
-  try {
-    const userInDatabase = await User.findOne({ username: req.body.username });
-    if (userInDatabase) {
-      return res.send('Username already taken.');
+    try {
+       console.log('Password:', req.body.password);
+       console.log('Confirm Password:', req.body.confirmPassword);
+ 
+       const userInDatabase = await User.findOne({ username: req.body.username });
+       if (userInDatabase) {
+          return res.status(400).send('Username already taken.');
+       }
+ 
+       if (req.body.password !== req.body.confirmPassword) {
+          console.log('Passwords do not match');
+          return res.status(400).send('Password and Confirm Password must match.');
+       }
+ 
+       const hashedPassword = bcrypt.hashSync(req.body.password, 10);
+       req.body.password = hashedPassword;
+ 
+       await User.create(req.body);
+       res.redirect('/auth/sign-in');
+    } catch (error) {
+       console.error('Error creating user:', error);
+       res.status(500).redirect('/');
     }
-  
-    if (req.body.password !== req.body.confirmPassword) {
-      return res.send('Password and Confirm Password must match');
-    }
-  
-    const hashedPassword = bcrypt.hashSync(req.body.password, 10);
-    req.body.password = hashedPassword;
-  
-    await User.create(req.body);
-  
-    res.redirect('/auth/sign-in');
-  } catch (error) {
-    console.log(error);
-    res.redirect('/');
-  }
-});
+ });
+ 
 
 router.post('/sign-in', async (req, res) => {
   try {
