@@ -71,28 +71,28 @@
     <p><%= post.content %></p>
 
     <h3>Comments</h3>
-    <% if (!post.comments || post.comments.length === 0) { %> <!-- Check if comments array exists -->
-        <p>No comments</p>
+
+    <% if (post.comments.length === 0) { %>
+        <p>No comments yet</p>
     <% } else { %>
-        <% post.comments.forEach((comment) => { %> <!-- Corrected from post.comment to post.comments -->
+        <% post.comments.forEach((comment) => { %>
             <div>
-                <p><%= comment.content %></p> <!-- Display comment content -->
-                <form method="POST" action="/comments/<%= comment._id %>?_method=DELETE">
-                    <button type="submit">Delete</button>
-                </form>
-                <form method="POST" action="/comments/<%= comment._id %>?_method=PUT">
-                    <input type="text" name="content" value="<%= comment.content %>" required>
-                    <button type="submit">Update</button>
-                </form>
+                <p><strong>Comment by:</strong> <%= comment.commenterId.username %></p>
+                <p><%= comment.content %></p>
+                <p><em>Posted on: <%= comment.createdAt.toDateString() %></em></p>
             </div>
         <% }); %>
     <% } %>
+    
 
     <h3>Add a Comment</h3>
-    <form method="POST" action="/blogs/<%= post._id %>/comments">
-        <input type="text" name="content" required placeholder="Write a comment...">
-        <button type="submit">Add Comment</button>
+    <form action="/posts/<%= post._id %>/comments" method="POST">
+        <label for="content">Add a Comment:</label>
+        <textarea name="content" id="content" required></textarea>
+    
+        <button type="submit">Submit Comment</button>
     </form>
+    
 
     <p>
         <a href="/users/<%= post.userId %>/blogs">Back to Blogs</a>

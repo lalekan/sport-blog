@@ -8,33 +8,19 @@ const isSignedIn = require('../middleware/is-signed-in');
 
 //============== ROUTERS ================ //
 
-// router.get('/users/:userId/blogs', async (req, res) => {
-//     try {
-//         const blogs = await Post.find({ user: req.params.userId }).populate('comments');
-//         res.render('blog/index.ejs', {
-//             blogs,
-//             user: req.session.user // Make sure user is passed here
-//         });
-//     } catch (err) {
-//         console.error("Error fetching blogs:", err);
-//         res.status(500).send("Error fetching blogs.");
-//     }
-// });
 
 router.get('/users/:userId/blogs', isSignedIn, async (req, res) => {
     try {
         const blogs = await Post.find({ user: req.params.userId }).populate('comments');
         res.render('blog/index.ejs', {
             blogs,
-            user: req.session.user // Ensure user session is passed to the view
+            user: req.session.user
         });
     } catch (error) {
         console.error('Error fetching blogs:', error);
         res.status(500).send('Error fetching blogs.');
     }
 });
-
-
 
 router.get('/users/:userId/blogs/:postId', async (req, res) => {
     try {
@@ -60,39 +46,11 @@ router.get('/users/:userId/blogs/:postId', async (req, res) => {
     }
 });
 
-
-
 router.get('/users/:userId/new', async(req, res) => {
     const userId = req.params.userId;
     const user = await User.findById(userId)
     res.render('blog/new.ejs', { user })
 })
-
-// router.post('/users/:userId/blogs', isSignedIn, async (req, res) => {
-//     try {
-//         const userId = req.params.userId;
-//         const { title, content } = req.body;
-
-//         console.log('Creating blog with title:', title, 'and content:', content);
-//         console.log('For user:', userId);
-
-//         const newBlog = new Post({
-//             title,
-//             content,
-//             user: userId,
-//             createdAt: new Date(),
-//             updatedAt: new Date(),
-//         });
-
-//         await newBlog.save();
-//         console.log('Blog post saved successfully');
-
-//         res.redirect(`/users/${userId}/blogs`);
-//     } catch (error) {
-//         console.error('Error creating blog post:', error);
-//         res.status(500).send('Internal Server Error');
-//     }
-// });
 
 router.post('/users/:userId/blogs', isSignedIn, async (req, res) => {
     try {
@@ -103,7 +61,7 @@ router.post('/users/:userId/blogs', isSignedIn, async (req, res) => {
         const newBlog = new Post({
             title,
             content,
-            user: userId, // Associate blog with current user
+            user: userId,
             createdAt: new Date(),
             updatedAt: new Date(),
         });
@@ -111,7 +69,7 @@ router.post('/users/:userId/blogs', isSignedIn, async (req, res) => {
         const savedBlog = await newBlog.save();
         console.log('New blog created:', savedBlog);
 
-        // Optionally, update the user's posts array
+        // Update the user's posts array
         const user = await User.findById(userId);
         if (user) {
             user.posts = [...user.posts, savedBlog._id]
@@ -125,6 +83,59 @@ router.post('/users/:userId/blogs', isSignedIn, async (req, res) => {
         res.status(500).send('Error creating blog.');
     }
 });
+
+router.post('/posts/:postId/comments', isSignedIn, async (req, res) => {
+    try {
+        const postId = req.params.postId;
+        const commenterId = req.session.user._id;
+        const { content } = req.body;
+
+        // Create the comment
+        const newComment = new Comment({
+            postId,
+            commenterId,
+            content,
+            createdAt: new Date(),
+            updatedAt: new Date()
+        });
+
+        const savedComment = await newComment.save();
+
+        // Find the post and add the comment to it
+        const post = await Post.findById(postId);
+        if (post) {
+            post.comments.push(savedComment._id);  
+            await post.save();
+        }
+
+        res.redirect(`/posts/${postId}`); 
+    } catch (error) {
+        console.error('Error adding comment:', error);
+        res.status(500).send('Error adding comment.');
+    }
+});
+
+router.get('/posts/:postId', async (req, res) => {
+    try {
+        const post = await Post.findById(req.params.postId)
+            .populate({
+                path: 'comments',
+                populate: {
+                    path: 'commenterId',
+                    select: 'username'   
+                }
+            });
+            console.log('Post with comments:', post);
+
+
+        res.render('blog/show.ejs', { post, user: req.session.user });
+    } catch (error) {
+        console.error('Error fetching blog post:', error);
+        res.status(500).send('Error fetching blog post.');
+    }
+});
+
+
 
 
 

@@ -4,24 +4,24 @@ const commentSchema = new mongoose.Schema({
     postId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Post',
-        required: false,
+        required: true
     },
     commenterId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        required: true,
+        required: true
     },
     content: {
         type: String,
-        required: true,
+        required: true
     },
     createdAt: {
         type: Date,
-        required: true,
+        default: Date.now
     },
     updatedAt: {
         type: Date,
-        required: true,
+        default: Date.now
     }
 });
 
