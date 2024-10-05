@@ -9,13 +9,25 @@ const { isPostOwner, isCommentOwner } = require('../middleware/is-owner');
 
 //============== ROUTERS ================ //
 
-// Display all blogs for a user
+router.get('/', async (req, res) => {
+    try {
+        const blogs = await Post.find().populate('user');
+        const user = req.session.user || null;
+        res.render('landing.ejs', { blogs, user });
+    } catch (error) {
+        console.error('Error fetching blogs:', error);
+        res.status(500).send('Error fetching blogs.');
+    }
+});
+
 router.get('/users/:userId/blogs', isSignedIn, async (req, res) => {
     try {
         const blogs = await Post.find({ user: req.params.userId }).populate('comments');
+        const successMessage = req.query.message; 
         res.render('blog/index.ejs', {
             blogs,
-            user: req.session.user
+            user: req.session.user,
+            successMessage
         });
     } catch (error) {
         console.error('Error fetching blogs:', error);
@@ -23,39 +35,33 @@ router.get('/users/:userId/blogs', isSignedIn, async (req, res) => {
     }
 });
 
-// Display a single blog post with comments
 router.get('/users/:userId/blogs/:postId', async (req, res) => {
     try {
         const { userId, postId } = req.params;
 
-        // Find the user by userId
         const user = await User.findById(userId);
         if (!user) {
             return res.status(404).send('User not found');
         }
 
-        // Find the specific post by postId and populate comments
         const post = await Post.findById(postId).populate('comments').exec();
         if (!post) {
             return res.status(404).send('Post not found');
         }
 
-        // Render the specific blog post view with user and post details
-        res.render('blog/show.ejs', { user, post });
+        res.render('blog/show.ejs', { user, post, comments: post.comments || [] }); 
     } catch (error) {
         console.error('Error fetching blog post:', error);
         res.status(500).send('Server error');
     }
 });
 
-// Display form to create a new blog
 router.get('/users/:userId/new', isSignedIn, async (req, res) => {
     const userId = req.params.userId;
     const user = await User.findById(userId);
     res.render('blog/new.ejs', { user });
 });
 
-// Handle new blog creation
 router.post('/users/:userId/blogs', isSignedIn, async (req, res) => {
     try {
         const userId = req.params.userId;
@@ -88,7 +94,6 @@ router.post('/users/:userId/blogs', isSignedIn, async (req, res) => {
     }
 });
 
-// Handle new comment creation
 router.post('/posts/:postId/comments', isSignedIn, async (req, res) => {
     try {
         const postId = req.params.postId;
@@ -120,7 +125,6 @@ router.post('/posts/:postId/comments', isSignedIn, async (req, res) => {
     }
 });
 
-// Display a single blog post
 router.get('/posts/:postId', async (req, res) => {
     try {
         const post = await Post.findById(req.params.postId)
@@ -130,16 +134,26 @@ router.get('/posts/:postId', async (req, res) => {
                     path: 'commenterId',
                     select: 'username'
                 }
-            });
+            })
+            .populate('user')
 
-        res.render('blog/show.ejs', { post, user: req.session.user });
+        if (!post) {
+            return res.status(404).send('Post not found')
+        }
+
+        res.render('blog/show.ejs', { 
+            post, 
+            comments: post.comments || [], 
+            user: req.session.user || null 
+        }); 
     } catch (error) {
         console.error('Error fetching blog post:', error);
         res.status(500).send('Error fetching blog post.');
     }
 });
 
-// Display edit form for a blog post
+
+
 router.get('/posts/:postId/edit', isSignedIn, isPostOwner, async (req, res) => {
     try {
         const post = await Post.findById(req.params.postId);
@@ -150,8 +164,6 @@ router.get('/posts/:postId/edit', isSignedIn, isPostOwner, async (req, res) => {
     }
 });
 
-
-// Handle blog post update
 router.put('/posts/:postId', isSignedIn, isPostOwner, async (req, res) => {
     try {
         const post = await Post.findByIdAndUpdate(req.params.postId, req.body, { new: true });
@@ -165,7 +177,7 @@ router.put('/posts/:postId', isSignedIn, isPostOwner, async (req, res) => {
 router.delete('/posts/:postId', isSignedIn, isPostOwner, async (req, res) => {
     try {
         await Post.findByIdAndDelete(req.params.postId);
-        res.redirect('/blogs');
+        res.redirect(`/users/${req.session.user._id}/blogs?message=Post Deleted`);
     } catch (error) {
         console.error('Error deleting post:', error);
         res.status(500).send('Error deleting post.');
@@ -174,10 +186,13 @@ router.delete('/posts/:postId', isSignedIn, isPostOwner, async (req, res) => {
 
 router.get('/posts/:postId/comments/:commentId/edit', isSignedIn, isCommentOwner, async (req, res) => {
     try {
-        const comment = await Comment.findById(req.params.commentId);
-        res.render('comments/edit.ejs', { comment, postId: req.params.postId });
+        const { postId, commentId } = req.params;
+        const comment = await Comment.findById(commentId);
+        if (!comment) {
+            return res.status(404).send('Comment not found');
+        }
+        res.render('comments/edit.ejs', { comment, postId });
     } catch (error) {
-        console.error('Error displaying edit form:', error);
         res.status(500).send('Error displaying edit form.');
     }
 });
@@ -192,7 +207,6 @@ router.put('/posts/:postId/comments/:commentId', isSignedIn, isCommentOwner, asy
     }
 });
 
-// Handle comment deletion
 router.delete('/posts/:postId/comments/:commentId', isSignedIn, isCommentOwner, async (req, res) => {
     try {
         await Comment.findByIdAndDelete(req.params.commentId);
@@ -200,6 +214,29 @@ router.delete('/posts/:postId/comments/:commentId', isSignedIn, isCommentOwner, 
     } catch (error) {
         console.error('Error deleting comment:', error);
         res.status(500).send('Error deleting comment.');
+    }
+});
+
+router.get('/blogs/:id', async (req, res) => {
+    try {
+        const post = await Post.findById(req.params.id)
+            .populate({
+                path: 'comments',
+                populate: {
+                    path: 'commenterId',
+                    select: 'username'
+                }
+            });
+
+        if (!post) {
+            return res.status(404).send('Blog not found');
+        }
+
+        const comments = post.comments || []; 
+        res.render('blog/show', { post, comments, user: req.session.user || null }); 
+    } catch (error) {
+        console.error('Error fetching blog post:', error);
+        res.redirect('/'); 
     }
 });
 

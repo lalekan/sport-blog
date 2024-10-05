@@ -1,82 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>All Sports Blog</title>
-  <!-- <link rel="stylesheet" href="/styles/style.css"> -->
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
-      margin: 0;
-      padding: 20px;
-    }
-
-    h1 {
-      text-align: center;
-      color: #333;
-    }
-
-    form {
-      max-width: 600px;
-      margin: 0 auto;
-      background-color: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    label {
-      display: block;
-      margin-bottom: 10px;
-      font-weight: bold;
-      color: #333;
-    }
-
-    input[type="text"], textarea {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 20px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      box-sizing: border-box;
-    }
-
-    textarea {
-      height: 400px;
-      resize: vertical; /* Allows the user to resize the content box vertically */
-    }
-
-    button[type="submit"] {
-      width: 100%;
-      padding: 12px;
-      background-color: #5cb85c;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-
-    button[type="submit"]:hover {
-      background-color: #4cae4c;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Blogs</title>
+    <link rel="stylesheet" href="/styles/style.css">
 </head>
 <body>
     <%- include('./partials/_navbar.ejs') %>
-  <% if (user) { %>
-    <h1>Welcome to the best sport forum in the world!!, <%= user.username %>!</h1>
-    <p>
-      <a href="/auth/sign-out">Sign out</a>
-    </p>
-  <% } else { %>
-    <h1>Welcome to the numero uno sports forum in the world, sign in to blog away!</h1>
-    <p>
-      <a href="/auth/sign-up">Sign up</a> or
-      <a href="/auth/sign-in">Sign in</a>.
-    </p>
-  <% } %>
+
+    <h1 class="landing-title">All Blogs</h1>
+
+    <div class="blog-list">
+        <% if (blogs.length === 0) { %>
+            <p class="no-blogs-message">No blogs available.</p>
+        <% } else { %>
+            <% blogs.forEach((blog) => { %>
+                <div class="blog-item">
+                    <% if (blog.user) { %> 
+                        <h2 class="blog-title"><a href="/users/<%= blog.user._id %>/blogs/<%= blog._id %>"><%= blog.title %></a></h2>
+                        <p class="blog-content"><%= blog.content %></p>
+                        
+                        <% if (user && user._id.toString() === blog.user.toString()) { %> 
+                            <a href="/blogs/<%= blog._id %>/edit"><button class="edit-button">Edit</button></a>
+                            <form action="/blogs/<%= blog._id %>?_method=DELETE" method="POST" style="display:inline;">
+                                <button type="submit" class="delete-button">Delete</button>
+                            </form>
+                        <% } %>
+                    <% } else { %>
+                        <h2 class="blog-title"><%= blog.title %></h2> 
+                        <p class="blog-content"><%= blog.content %></p>
+                    <% } %>
+                </div>
+            <% }); %>
+        <% } %>
+    </div>
+    
+    <% if (user) { %> 
+        <h2 class="view-my-blogs"><a href="/users/<%= user._id %>/blogs">View all my blogs</a></h2>
+    <% } %>
 </body>
 </html>

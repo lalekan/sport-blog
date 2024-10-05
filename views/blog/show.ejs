@@ -1,115 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= post.title %></title>
-  <!-- <link rel="stylesheet" href="/styles/style.css"> -->
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
-      margin: 0;
-      padding: 20px;
-    }
-
-    h1 {
-      text-align: center;
-      color: #333;
-    }
-
-    form {
-      max-width: 600px;
-      margin: 0 auto;
-      background-color: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    label {
-      display: block;
-      margin-bottom: 10px;
-      font-weight: bold;
-      color: #333;
-    }
-
-    input[type="text"], textarea {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 20px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      box-sizing: border-box;
-    }
-
-    textarea {
-      height: 400px;
-      resize: vertical; /* Allows the user to resize the content box vertically */
-    }
-
-    button[type="submit"] {
-      width: 100%;
-      padding: 12px;
-      background-color: #5cb85c;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-
-    button[type="submit"]:hover {
-      background-color: #4cae4c;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= post.title %></title>
+    <link rel="stylesheet" href="/styles/style.css">
 </head>
 <body>
-    <%- include('../partials/_navbar.ejs') %> <!-- Include Navbar -->
+    <%- include('../partials/_navbar') %>
 
-    <h1><%= post.title %></h1>
-    <p><%= post.content %></p>
+    <div class="container">
+        <h1 class="post-title"><%= post.title %></h1>
+        <h4 class="post-author">Posted by: <%= post.user.username %></h4>
+        <p class="post-content"><%= post.content %></p>
 
-    <!-- Check if the user is the owner of the post -->
-    <% if (user && user._id.toString() === post.user.toString()) { %>
-        <!-- Edit Post Button -->
-        <form action="/posts/<%= post._id %>/edit" method="GET">
-            <button type="submit">Edit Post</button>
-        </form>
-        <!-- Delete Post Button -->
-        <form action="/posts/<%= post._id %>?_method=DELETE" method="POST" style="display:inline;">
-            <button type="submit">Delete Post</button>
-        </form>
-    <% } %>
-
-    <h2>Comments</h2>
-    <ul>
-        <% post.comments.forEach(comment => { %>
-            <li>
-                <p><%= comment.content %> - <%= comment.commenterId.username %></p>
-                <!-- Check if the user is the owner of the comment -->
-                <% if (user && user._id.toString() === comment.commenterId._id.toString()) { %>
-                    <form action="/posts/<%= post._id %>/comments/<%= comment._id %>/edit" method="GET" style="display:inline;">
-                        <button type="submit">Edit Comment</button>
-                    </form>
-                    <form action="/posts/<%= post._id %>/comments/<%= comment._id %>?_method=DELETE" method="POST" style="display:inline;">
-                        <button type="submit">Delete Comment</button>
-                    </form>
-                <% } %>
-            </li>
-        <% }); %>
-    </ul>
-
-    <h3>Add a Comment</h3>
-    <form action="/posts/<%= post._id %>/comments" method="POST">
-        <textarea name="content" required></textarea>
-        <button type="submit">Add Comment</button>
-    </form>
-
-
-
-    <p>
-        <a href="/users/<%= post.userId %>/blogs">Back to Blogs</a>
-    </p>
+        <h2 class="comments-title">Comments</h2>
+        <div class="comments-section">
+            <% if (comments && comments.length === 0) { %>
+                <p class="no-comments">No comments yet.</p>
+            <% } else if (comments) { %>
+                <% comments.forEach((comment) => { %>
+                    <div class="comment-item">
+                        <p class="comment-text"><strong><%= comment.commenterId.username %>:</strong> <%= comment.content %></p>
+                        
+                        <% if (user && user._id.toString() === comment.commenterId.toString()) { %> 
+                            <a href="/posts/<%= post._id %>/comments/<%= comment._id %>/edit" class="edit-comment-link">
+                                <button class="edit-comment-btn">Edit</button>
+                            </a>
+                            <form action="/posts/<%= post._id %>/comments/<%= comment._id %>?_method=DELETE" method="POST" style="display:inline;">
+                                <button type="submit" class="delete-comment-btn">Delete</button>
+                            </form>
+                        <% } %>
+                    </div>
+                <% }); %>
+            <% } %>
+        </div>
+        
+        <% if (user) { %>
+            <form action="/posts/<%= post._id %>/comments" method="POST" class="add-comment-form"> 
+                <textarea name="content" required class="comment-input"></textarea>
+                <button type="submit" class="add-comment-btn">Add Comment</button>
+            </form>
+        <% } %>
+    </div>
 </body>
 </html>
