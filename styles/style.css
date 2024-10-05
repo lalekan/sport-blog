@@ -7,7 +7,7 @@ body {
 
 h1 {
   text-align: center;
-  color: #DA291C;
+  color: #5cb85c;
   margin-bottom: 20px;
 }
 
@@ -16,7 +16,7 @@ h4 {
 }
 
 nav {
-  background-color: #DA291C;
+  background-color: #5cb85c;
   padding: 15px;
   border-radius: 0 0 8px 8px;
   margin-bottom: 20px;
@@ -37,9 +37,9 @@ form {
   max-width: 600px;
   margin: 0 auto;
   background-color: #fff;
-  padding: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
 }
 
 label {
@@ -65,7 +65,7 @@ textarea {
 button[type="submit"], button {
   width: 100%;
   padding: 12px;
-  background-color: #DA291C;
+  background-color: #5cb85c;
   color: #fff;
   border: none;
   border-radius: 4px;
@@ -75,7 +75,7 @@ button[type="submit"], button {
 }
 
 button[type="submit"]:hover, button:hover {
-  background-color: #a0231a;
+  background-color: #367636;
 }
 
 /* Styles for blog list */
@@ -94,30 +94,48 @@ ul {
 }
 
 .blog-item {
+  display: flex;
+  flex-direction: column; 
+  background: #fff;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   margin-bottom: 20px;
 }
 
 .blog-item h2 {
   margin: 0;
   font-size: 24px;
-  color: #DA291C;
+  color: #5cb85c;
 }
 
 .blog-item p {
   font-size: 16px;
 }
 
-/* Styles for comments section */
 .comments-section {
-  margin-top: 20px;
-  background: #fff;
-  padding: 15px;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px; 
+  background-color: #fff; 
+  padding: 15px; 
+  border-radius: 8px; 
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); 
 }
 
 .comment-item {
-  margin-bottom: 10px;
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.edit-comment-link {
+  padding-left: 10px;
+}
+
+.delete-comment-link {
+  padding-right: 10px;
 }
 
 button[type="submit"].small-btn,
@@ -125,7 +143,7 @@ button.small-btn {
     width: auto; 
     padding: 6px 12px; 
     font-size: 14px; 
-    background-color: #DA291C;
+    background-color: #5cb85c;
     border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.3s;
@@ -133,5 +151,17 @@ button.small-btn {
 
 button[type="submit"].small-btn:hover,
 button.small-btn:hover {
-    background-color: #a0231a; 
+    background-color: #367636; 
+}
+
+.button-container {
+  display: flex; 
+  gap: 10px; 
+}
+
+.post-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
 }

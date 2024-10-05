@@ -11,25 +11,45 @@
 
     <div class="container">
         <h1 class="post-title"><%= post.title %></h1>
-        <h4 class="post-author">Posted by: <%= post.user.username %></h4>
+
+        <div class="post-info">
+            <div class="author-section">
+                <h4 class="post-author">Posted by: <%= post.user.username %></h4>
+        
+                <% if (user && user._id.toString() === post.user._id.toString()) { %>
+                    <div class="button-container">
+                        <a href="/posts/<%= post._id %>/edit">
+                            <button type="button" class="small-btn">Edit</button>
+                        </a>
+                        <form action="/posts/<%= post._id %>?_method=DELETE" method="POST" style="display:inline;">
+                            <button type="submit" class="small-btn">Delete</button>
+                        </form>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+        
+
         <p class="post-content"><%= post.content %></p>
 
         <h2 class="comments-title">Comments</h2>
         <div class="comments-section">
             <% if (comments && comments.length === 0) { %>
                 <p class="no-comments">No comments yet.</p>
-            <% } else if (comments) { %>
+            <% } else { %>
                 <% comments.forEach((comment) => { %>
                     <div class="comment-item">
                         <p class="comment-text"><strong><%= comment.commenterId.username %>:</strong> <%= comment.content %></p>
                         
-                        <% if (user && user._id.toString() === comment.commenterId.toString()) { %> 
-                            <a href="/posts/<%= post._id %>/comments/<%= comment._id %>/edit" class="edit-comment-link">
-                                <button class="small-btn">Edit</button>
-                            </a>
-                            <form action="/posts/<%= post._id %>/comments/<%= comment._id %>?_method=DELETE" method="POST" style="display:inline;">
-                                <button type="submit" class="small-btn">Delete</button>
-                            </form>
+                        <% if (user && user._id.toString() === comment.commenterId._id.toString()) { %> 
+                            <div class="edit-comment-link">
+                                <a href="/posts/<%= post._id %>/comments/<%= comment._id %>/edit">
+                                    <button type="submit" class="small-btn">Edit</button>
+                                </a>
+                                <form action="/posts/<%= post._id %>/comments/<%= comment._id %>?_method=DELETE" method="POST" style="display:inline;">
+                                    <button type="submit" class="small-btn">Delete</button>
+                                </form>
+                            </div>
                         <% } %>
                     </div>
                 <% }); %>
@@ -37,7 +57,7 @@
         </div>
         
         <% if (user) { %>
-            <form action="/posts/<%= post._id %>/comments" method="POST" class="add-comment-form"> 
+            <form class="add-comment" action="/posts/<%= post._id %>/comments" method="POST" class="add-comment-form"> 
                 <textarea name="content" required class="comment-input"></textarea>
                 <button type="submit" class="small-btn">Add Comment</button>
             </form>

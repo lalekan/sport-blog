@@ -1,7 +1,6 @@
 const Post = require('../models/post');
 const Comment = require('../models/comment');
 
-// Middleware to check if the user is the owner of the post
 module.exports.isPostOwner = async (req, res, next) => {
     try {
         const post = await Post.findById(req.params.postId);
@@ -18,7 +17,6 @@ module.exports.isPostOwner = async (req, res, next) => {
     }
 };
 
-// Middleware to check if the user is the owner of the comment
 module.exports.isCommentOwner = async (req, res, next) => {
     try {
         const comment = await Comment.findById(req.params.commentId);

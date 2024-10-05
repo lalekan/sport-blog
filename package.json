@@ -17,6 +17,7 @@
     "express": "^4.21.0",
     "express-session": "^1.18.0",
     "method-override": "^3.0.0",
-    "mongoose": "^8.7.0"
+    "mongoose": "^8.7.0",
+    "start": "^5.1.0"
   }
 }

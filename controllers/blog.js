@@ -44,12 +44,21 @@ router.get('/users/:userId/blogs/:postId', async (req, res) => {
             return res.status(404).send('User not found');
         }
 
-        const post = await Post.findById(postId).populate('comments').exec();
+        const post = await Post.findById(postId)
+            .populate({
+                path: 'comments',
+                populate: {
+                    path: 'commenterId',
+                    select: 'username'
+                }
+            })
+            .populate('user', 'username');
+
         if (!post) {
             return res.status(404).send('Post not found');
         }
 
-        res.render('blog/show.ejs', { user, post, comments: post.comments || [] }); 
+        res.render('blog/show.ejs', { user, post, comments: post.comments || [] });
     } catch (error) {
         console.error('Error fetching blog post:', error);
         res.status(500).send('Server error');
@@ -67,7 +76,6 @@ router.post('/users/:userId/blogs', isSignedIn, async (req, res) => {
         const userId = req.params.userId;
         const { title, content } = req.body;
 
-        // Create a new blog post
         const newBlog = new Post({
             title,
             content,
@@ -77,19 +85,15 @@ router.post('/users/:userId/blogs', isSignedIn, async (req, res) => {
         });
 
         const savedBlog = await newBlog.save();
-        console.log('New blog created:', savedBlog);
 
-        // Update the user's posts array
         const user = await User.findById(userId);
         if (user) {
             user.posts.push(savedBlog._id);
-            console.log('Updated user posts:', user.posts);
             await user.save();
         }
 
         res.redirect(`/users/${userId}/blogs`);
     } catch (error) {
-        console.error('Error creating blog:', error);
         res.status(500).send('Error creating blog.');
     }
 });
@@ -100,7 +104,6 @@ router.post('/posts/:postId/comments', isSignedIn, async (req, res) => {
         const commenterId = req.session.user._id;
         const { content } = req.body;
 
-        // Create the comment
         const newComment = new Comment({
             postId,
             commenterId,
@@ -111,7 +114,6 @@ router.post('/posts/:postId/comments', isSignedIn, async (req, res) => {
 
         const savedComment = await newComment.save();
 
-        // Find the post and add the comment to it
         const post = await Post.findById(postId);
         if (post) {
             post.comments.push(savedComment._id);
@@ -135,38 +137,42 @@ router.get('/posts/:postId', async (req, res) => {
                     select: 'username'
                 }
             })
-            .populate('user')
+            .populate('user', 'username');
 
         if (!post) {
-            return res.status(404).send('Post not found')
+            return res.status(404).send('Post not found');
         }
 
         res.render('blog/show.ejs', { 
             post, 
             comments: post.comments || [], 
             user: req.session.user || null 
-        }); 
+        });
     } catch (error) {
         console.error('Error fetching blog post:', error);
         res.status(500).send('Error fetching blog post.');
     }
 });
 
-
-
 router.get('/posts/:postId/edit', isSignedIn, isPostOwner, async (req, res) => {
     try {
         const post = await Post.findById(req.params.postId);
         const blogs = await Post.find({ user: req.session.user._id }); 
+
         res.render('blog/edit.ejs', { post, blogs, user: req.session.user }); 
     } catch (error) {
+        console.error('Error displaying edit form:', error);
         res.status(500).send('Error displaying edit form.');
     }
 });
 
+
 router.put('/posts/:postId', isSignedIn, isPostOwner, async (req, res) => {
     try {
         const post = await Post.findByIdAndUpdate(req.params.postId, req.body, { new: true });
+        if (!post) {
+            return res.status(404).send('Post not found');
+        }
         res.redirect(`/posts/${post._id}`);
     } catch (error) {
         console.error('Error updating post:', error);

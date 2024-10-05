@@ -44,10 +44,7 @@ app.get('/', async(req, res) => {
 //================== MONGODB CONNECTION =====================//
 mongoose.connect(process.env.MONGODB_URI)
     .then(() => {
-        console.log('MongoDB connection successful');
-        // Start server after MongoDB connection is successful
         app.listen(port, () => {
-            console.log(`The express app is ready on port ${port}`);
         });
     })
     .catch((err) => console.error('MongoDB connection error:', err));
