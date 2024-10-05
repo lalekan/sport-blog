@@ -20,8 +20,6 @@
                     <li class="blog-item">
                         <h2 class="blog-title"><a href="/posts/<%= blog._id %>"><%= blog.title %></a></h2>
                         <p class="blog-content"><%= blog.content %></p>
-
-                        <!-- Display update and delete buttons for each blog post if the user is the owner -->
                         <% if (user && blog.authorId && user._id.equals(blog.authorId._id)) { %>
                             <a href="/posts/<%= blog._id %>/edit" class="btn">Update</a>
                             <form action="/posts/<%= blog._id %>?_method=DELETE" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this post?');">

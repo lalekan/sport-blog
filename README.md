@@ -33,8 +33,12 @@ Create a Friend request with other user and be able to view their blog post excl
 
 ### **_Credits_**
 [Stack Overflow](https://stackoverflow.com/questions/38653485/making-one-to-many-relation-array-in-javascript)
-[Find After Populate Mongoose](  https://stackoverflow.com/questions/31357745/find-after-populate-mongoose)
+[Find After Populate Mongoose](https://stackoverflow.com/questions/31357745/find-after-populate-mongoose)
 [MDN]( https://developer.mozilla.org/en-US/docs/Web/HTTP/Status)
 [W3Schools](https://www.w3schools.com/js/js_errors.asp)
-[Getting current Date in Javascript]( https://stackoverflow.com/questions/1531093/how-do-i-get-the-current-date-in-javascript)
-
+[Getting current Date in Javascript](https://stackoverflow.com/questions/1531093/how-do-i-get-the-current-date-in-javascript)
+[MDN Express Tutorial](https://developer.mozilla.org/en-US/docs/Learn/Server-side/Express_Nodejs/Tutorial_local_library_website)
+[MDN](https://developer.mozilla.org/en-US/docs/Learn/Server-side/Express_Nodejs/skeleton_website)
+[MDN](https://developer.mozilla.org/en-US/docs/Learn/Server-side/Express_Nodejs/mongoose)
+[MDN](https://developer.mozilla.org/en-US/docs/Learn/Server-side/Express_Nodejs/routes)
+[Error Handling Exprees Js](https://expressjs.com/en/guide/error-handling.html)
