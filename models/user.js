@@ -1,24 +1,24 @@
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
-   username: {
-    type: String,
-    required: true,
-   },
-   password: {
-    type: String,
-    required: true,
-   },
-   email: {
-    type: String,
-    required: true,
-   },
-   posts: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'postSchema',
-    required: true,
-   }
+    username: {
+        type: String,
+        required: true,
+    },
+    password: {
+        type: String,
+        required: true,
+    },
+    email: {
+        type: String,
+        required: true,
+    },
+    posts: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Post',
+    }],
+
 });
 
-const User = mongoose.model('Food', userSchema)
-module.exports = User
+const User = mongoose.model('User', userSchema);
+module.exports = User;

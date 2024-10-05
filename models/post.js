@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 
 const postSchema = new mongoose.Schema({
     title: {
@@ -17,12 +17,11 @@ const postSchema = new mongoose.Schema({
         type: Date,
         required: true,
     },
-    comment: {
+    comment: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Comment',
-        required: false,
-    }
-})
+    }]
+});
 
-const Post = mongoose.model('Post', postSchema)
-module.exports = Post
+const Post = mongoose.model('Post', postSchema);
+module.exports = Post;

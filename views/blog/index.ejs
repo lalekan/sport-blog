@@ -1,0 +1,32 @@
+<body>
+    <h1>Blogs by <%= user.username %></h1>
+    <% blogs.forEach((blog) => { %> <!-- Corrected variable name -->
+        <h2><%= blog.title %></h2>
+        <p><%= blog.content %></p> <!-- Optionally display content -->
+        
+        <h3>Comments:</h3>
+        <% if (blog.comment.length > 0) { %>
+            <ul>
+                <% blog.comment.forEach((comment) => { %>
+                    <li>
+                        <p><%= comment.content %></p>
+                        <form action="/comments/<%= comment._id %>?postId=<%= blog._id %>" method="POST">
+                            <input type="text" name="updatedContent" placeholder="Update comment" />
+                            <button type="submit">Update Comment</button>
+                        </form>
+                        <form action="/comments/<%= comment._id %>?postId=<%= blog._id %>" method="POST" style="display:inline;">
+                            <button type="submit" name="_method" value="DELETE">Delete Comment</button>
+                        </form>
+                    </li>
+                <% }) %>
+            </ul>
+        <% } else { %>
+            <p>No comments</p>
+        <% } %>
+        
+        <form action="/users/<%= user._id %>/blogs/<%= blog._id %>/comments" method="POST">
+            <input type="text" name="content" placeholder="Add a comment" required />
+            <button type="submit">Submit Comment</button>
+        </form>
+    <% }) %>
+</body>

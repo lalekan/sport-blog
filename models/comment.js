@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 
 const commentSchema = new mongoose.Schema({
     postId: {
@@ -19,7 +19,11 @@ const commentSchema = new mongoose.Schema({
         type: Date,
         required: true,
     },
+    updatedAt: {
+        type: Date,
+        required: true,
+    }
 });
 
-const Comment = mongoose.model('Comment', commentSchema)
-module.exports = Comment
+const Comment = mongoose.model('Comment', commentSchema);
+module.exports = Comment;

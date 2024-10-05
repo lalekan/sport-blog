@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= post.title %></title>
+</head>
+<body>
+    <h1><%= post.title %></h1>
+    <p><%= post.content %></p>
+
+    <h3>Comments:</h3>
+    <% if (post.comment.length > 0) { %>
+        <ul>
+            <% post.comment.forEach((comment) => { %>
+                <li>
+                    <p><%= comment.content %></p>
+                    <form action="/comments/<%= comment._id %>?postId=<%= post._id %>" method="POST">
+                        <input type="text" name="updatedContent" placeholder="Update comment" />
+                        <button type="submit">Update Comment</button>
+                    </form>
+                    <form action="/comments/<%= comment._id %>?postId=<%= post._id %>" method="POST" style="display:inline;">
+                        <button type="submit" name="_method" value="DELETE">Delete Comment</button>
+                    </form>
+                </li>
+            <% }) %>
+        </ul>
+    <% } else { %>
+        <p>No comments</p>
+    <% } %>
+    
+    <form action="/users/<%= user._id %>/blogs/<%= post._id %>/comments" method="POST">
+        <input type="text" name="content" placeholder="Add a comment" required />
+        <button type="submit">Submit Comment</button>
+    </form>
+</body>
+</html>
