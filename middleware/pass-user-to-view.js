@@ -1,10 +1,5 @@
-const passUserToView = (req, res, next) => {
-
-    if (req.session && req.session.user) {
-        res.local.user = req.session.user;
-    } else {
-        res.locals.user = null;
-    }
-    next()
-}
-module.exports = passUserToView
+module.exports = (req, res, next) => {
+    res.locals.user = req.session && req.session.user ? req.session.user : null;
+    next();
+  };
+  

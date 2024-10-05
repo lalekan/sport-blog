@@ -1,27 +1,27 @@
-//=================== EXPRESS IMPORTS ==================//
-const dotenv = require('dotenv')
-dotenv.config();
 const express = require('express');
-const methodOverride = require('method-override')
-const mongoose = require('mongoose')
-const session = require('express-session')
-const bcrypt = require('bcrypt')
+const methodOverride = require('method-override');
+const mongoose = require('mongoose');
+const session = require('express-session');
+const dotenv = require('dotenv');
+const path = require('path'); // Import path module
+
+dotenv.config();
 
 const passUserToView = require('./middleware/pass-user-to-view.js');
 const authController = require('./controllers/auth.js');
-const isSignedIn = require('./middleware/is-signed-in.js').default; // Importing the middleware
 const blogsController = require('./controllers/blog.js');
-const commentController = require('./controllers/comment.js');
 
 const app = express();
 const port = process.env.PORT || '3000';
 
+// Serve static files from the "styles" directory
+app.use(express.static(path.join(__dirname, 'styles'))); // Serve static files
 
 //============= MIDDLEWARE SETUP ================//
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(methodOverride('_method'));
-
+app.use(passUserToView)
 
 //============== SESSION SETUP ==================//
 app.use(
@@ -34,12 +34,7 @@ app.use(
 
 //=========== ROUTE DEFINITION ==============//
 app.use('/auth', authController);  // Use auth routes
-app.use(blogsController)
-app.use(commentController)
-
-
-
-//============= ROUTERS ================//
+app.use(blogsController);
 
 app.get('/', async(req, res) => {
     res.render('landing.ejs', {
@@ -47,13 +42,13 @@ app.get('/', async(req, res) => {
     });
 });
 
-
 //================== MONGODB CONNECTION =====================//
 mongoose.connect(process.env.MONGODB_URI)
-    .then(() => {console.log('MongoDB connection successful');
-// Start server after MongoDB connection is successful
-    app.listen(port, () => {
-    console.log(`The express app is ready on port ${port}`);
-});
+    .then(() => {
+        console.log('MongoDB connection successful');
+        // Start server after MongoDB connection is successful
+        app.listen(port, () => {
+            console.log(`The express app is ready on port ${port}`);
+        });
     })
-    .catch((err) => console.err('MongoDB connection error:', err));
+    .catch((err) => console.error('MongoDB connection error:', err));

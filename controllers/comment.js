@@ -4,34 +4,27 @@ const Post = require('../models/post.js');
 const Comment = require('../models/comment.js');
 
 // Add a new comment
-router.post('/users/:userId/blogs/:postId/comments', async (req, res) => {
-    if (!req.session.user) {
-        return res.redirect('/auth/sign-in'); // Redirect to sign-in if not authenticated
+router.post('/comments', async (req, res) => {
+    const { postId } = req.query; // Get the postId from the query
+    const commentData = {
+        content: req.body.content,
+        commenterId: req.session.user._id,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+    };
+
+    try {
+        // Create and save the comment
+        const newComment = await Comment.create(commentData);
+        
+        // Update the corresponding post to include the new comment
+        await Post.findByIdAndUpdate(postId, { $push: { comments: newComment._id } });
+
+        res.redirect(`/users/${req.session.user._id}/blogs/${postId}`);
+    } catch (error) {
+        console.error('Error adding comment:', error);
+        res.status(500).send('Internal Server Error');
     }
-
-    console.log(req.session, "REQ.SESSION TO ADD COMMENT!!!")
-
-    const { content } = req.body;
-    const userId = req.session.user._id; // Use req.session.user
-    const postId = req.params.postId;
-    const currentTime = new Date();
-
-    const newComment = new Comment({
-        postId,
-        commenterId: userId,
-        content,
-        createdAt: currentTime,
-        updatedAt: currentTime,
-    });
-
-    await newComment.save();
-    
-    // Add comment to the post's comments array
-    const post = await Post.findById(postId);
-    post.comment.push(newComment._id);
-    await post.save();
-
-    res.redirect(`/users/${userId}/blogs/${postId}`); // Redirect back to the blog
 });
 
 // Update a comment
@@ -60,11 +53,14 @@ router.delete('/comments/:commentId', async (req, res) => {
         return res.redirect('/auth/sign-in'); // Redirect to sign-in if not authenticated
     }
 
-    console.log(req.session, "REQ.SESSION TO DELETE COMMENT!!!")
-
-
     const commentId = req.params.commentId;
     const postId = req.query.postId;
+
+    // Check if the comment exists
+    const comment = await Comment.findById(commentId);
+    if (!comment) {
+        return res.status(404).send('Comment not found'); // Handle not found comment
+    }
 
     await Comment.findByIdAndDelete(commentId);
 
@@ -75,6 +71,7 @@ router.delete('/comments/:commentId', async (req, res) => {
 
     res.redirect(`/users/${req.session.user._id}/blogs/${postId}`); // Redirect back to the blog
 });
+
 
 
 

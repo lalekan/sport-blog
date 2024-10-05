@@ -1,37 +1,101 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= post.title %></title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= post.title %></title>
+  <!-- <link rel="stylesheet" href="/styles/style.css"> -->
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    form {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    label {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    input[type="text"], textarea {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+
+    textarea {
+      height: 400px;
+      resize: vertical; /* Allows the user to resize the content box vertically */
+    }
+
+    button[type="submit"] {
+      width: 100%;
+      padding: 12px;
+      background-color: #5cb85c;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button[type="submit"]:hover {
+      background-color: #4cae4c;
+    }
+  </style>
 </head>
 <body>
+    <%- include('../partials/_navbar.ejs') %> <!-- Include Navbar -->
+
     <h1><%= post.title %></h1>
     <p><%= post.content %></p>
 
-    <h3>Comments:</h3>
-    <% if (post.comment.length > 0) { %>
-        <ul>
-            <% post.comment.forEach((comment) => { %>
-                <li>
-                    <p><%= comment.content %></p>
-                    <form action="/comments/<%= comment._id %>?postId=<%= post._id %>" method="POST">
-                        <input type="text" name="updatedContent" placeholder="Update comment" />
-                        <button type="submit">Update Comment</button>
-                    </form>
-                    <form action="/comments/<%= comment._id %>?postId=<%= post._id %>" method="POST" style="display:inline;">
-                        <button type="submit" name="_method" value="DELETE">Delete Comment</button>
-                    </form>
-                </li>
-            <% }) %>
-        </ul>
-    <% } else { %>
+    <h3>Comments</h3>
+    <% if (!post.comments || post.comments.length === 0) { %> <!-- Check if comments array exists -->
         <p>No comments</p>
+    <% } else { %>
+        <% post.comments.forEach((comment) => { %> <!-- Corrected from post.comment to post.comments -->
+            <div>
+                <p><%= comment.content %></p> <!-- Display comment content -->
+                <form method="POST" action="/comments/<%= comment._id %>?_method=DELETE">
+                    <button type="submit">Delete</button>
+                </form>
+                <form method="POST" action="/comments/<%= comment._id %>?_method=PUT">
+                    <input type="text" name="content" value="<%= comment.content %>" required>
+                    <button type="submit">Update</button>
+                </form>
+            </div>
+        <% }); %>
     <% } %>
-    
-    <form action="/users/<%= user._id %>/blogs/<%= post._id %>/comments" method="POST">
-        <input type="text" name="content" placeholder="Add a comment" required />
-        <button type="submit">Submit Comment</button>
+
+    <h3>Add a Comment</h3>
+    <form method="POST" action="/blogs/<%= post._id %>/comments">
+        <input type="text" name="content" required placeholder="Write a comment...">
+        <button type="submit">Add Comment</button>
     </form>
+
+    <p>
+        <a href="/users/<%= post.userId %>/blogs">Back to Blogs</a>
+    </p>
 </body>
 </html>

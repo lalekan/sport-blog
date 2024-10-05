@@ -4,27 +4,62 @@ const router = express.Router();
 const User = require('../models/user.js');
 const Post = require('../models/post.js');
 const Comment = require('../models/comment.js');
+const isSignedIn = require('../middleware/is-signed-in');
 
 //============== ROUTERS ================ //
 
-router.get('/users/:userId/blogs', async (req, res) => {
+// router.get('/users/:userId/blogs', async (req, res) => {
+//     try {
+//         const blogs = await Post.find({ user: req.params.userId }).populate('comments');
+//         res.render('blog/index.ejs', {
+//             blogs,
+//             user: req.session.user // Make sure user is passed here
+//         });
+//     } catch (err) {
+//         console.error("Error fetching blogs:", err);
+//         res.status(500).send("Error fetching blogs.");
+//     }
+// });
+
+router.get('/users/:userId/blogs', isSignedIn, async (req, res) => {
     try {
-        const userId = req.params.userId;
+        const blogs = await Post.find({ user: req.params.userId }).populate('comments');
+        res.render('blog/index.ejs', {
+            blogs,
+            user: req.session.user // Ensure user session is passed to the view
+        });
+    } catch (error) {
+        console.error('Error fetching blogs:', error);
+        res.status(500).send('Error fetching blogs.');
+    }
+});
 
-        // Find the user by userId and populate posts
-        const user = await User.findById(userId).populate('posts');
 
+
+router.get('/users/:userId/blogs/:postId', async (req, res) => {
+    try {
+        const { userId, postId } = req.params;
+
+        // Find the user by userId
+        const user = await User.findById(userId);
         if (!user) {
             return res.status(404).send('User not found');
         }
 
-        // Render to the blogs.ejs page with the user and their posts
-        res.render('blog/index.ejs', { user, blogs: user.posts }); // Use user.posts here
+        // Find the specific post by postId and populate comments
+        const post = await Post.findById(postId).populate('comments').exec();
+        if (!post) {
+            return res.status(404).send('Post not found');
+        }
+
+        // Render the specific blog post view with user and post details
+        res.render('blog/show.ejs', { user, post });
     } catch (error) {
-        console.error('Error fetching blogs:', error);
+        console.error('Error fetching blog post:', error);
         res.status(500).send('Server error');
     }
 });
+
 
 
 router.get('/users/:userId/new', async(req, res) => {
@@ -33,43 +68,68 @@ router.get('/users/:userId/new', async(req, res) => {
     res.render('blog/new.ejs', { user })
 })
 
-router.post('/users/:userId/blogs', async(req, res) => {
-    router.post('/users/:userId/blogs', async(req, res) => {
-        const { title, content } = req.body;
+// router.post('/users/:userId/blogs', isSignedIn, async (req, res) => {
+//     try {
+//         const userId = req.params.userId;
+//         const { title, content } = req.body;
+
+//         console.log('Creating blog with title:', title, 'and content:', content);
+//         console.log('For user:', userId);
+
+//         const newBlog = new Post({
+//             title,
+//             content,
+//             user: userId,
+//             createdAt: new Date(),
+//             updatedAt: new Date(),
+//         });
+
+//         await newBlog.save();
+//         console.log('Blog post saved successfully');
+
+//         res.redirect(`/users/${userId}/blogs`);
+//     } catch (error) {
+//         console.error('Error creating blog post:', error);
+//         res.status(500).send('Internal Server Error');
+//     }
+// });
+
+router.post('/users/:userId/blogs', isSignedIn, async (req, res) => {
+    try {
         const userId = req.params.userId;
-        const currentTime = new Date();
-    
-        const newPost = {
+        const { title, content } = req.body;
+
+        // Create a new blog post
+        const newBlog = new Post({
             title,
             content,
-            createdAt: currentTime,
-            updatedAt: currentTime,
-            comment: []
-        };
-    
-        const post = await Post.create(newPost); 
+            user: userId, // Associate blog with current user
+            createdAt: new Date(),
+            updatedAt: new Date(),
+        });
+
+        const savedBlog = await newBlog.save();
+        console.log('New blog created:', savedBlog);
+
+        // Optionally, update the user's posts array
         const user = await User.findById(userId);
-        user.posts.push(post._id);
-        await user.save();
-    
+        if (user) {
+            user.posts = [...user.posts, savedBlog._id]
+            console.log('Updated user posts:', user.posts)
+            await user.save();
+        }
+
         res.redirect(`/users/${userId}/blogs`);
-    });
-})
-
-router.get('/users/:userId/blogs/:postId', async (req, res) => {
-    const userId = req.params.userId;
-    const postId = req.params.postId;
-
-    try {
-        const post = await Post.findById(postId).populate('comment');
-        const user = await User.findById(userId);
-        
-        res.render('blog/show.ejs', { user, post }); // Render the specific post
     } catch (error) {
-        console.error('Error fetching post:', error);
-        res.status(500).send('Server error');
+        console.error('Error creating blog:', error);
+        res.status(500).send('Error creating blog.');
     }
 });
+
+
+
+
+
 
 
 module.exports = router

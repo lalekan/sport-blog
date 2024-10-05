@@ -66,14 +66,14 @@
   <body>
     <h1>Create a New Blog!</h1>
     
-    <form action="/users/<%=user._id%>/blogs" method="POST">
-      <label for="title">Post Title:</label>
-      <input type="text" name="title" id="title" placeholder="Enter blog title" required />
-
-      <label for="content">Content:</label>
-      <textarea name="content" id="content" placeholder="Write your blog content here" required></textarea>
-
-      <button type="submit">Post Blog</button>
-    </form>
+    <form action="/users/<%= user._id %>/blogs" method="POST">
+        <label for="title">Blog Title:</label>
+        <input type="text" name="title" id="title" required>
+    
+        <label for="content">Content:</label>
+        <textarea name="content" id="content" required></textarea>
+    
+        <button type="submit">Create Blog</button>
+    </form>     
   </body>
 </html>
