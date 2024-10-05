@@ -25,10 +25,10 @@
                         
                         <% if (user && user._id.toString() === comment.commenterId.toString()) { %> 
                             <a href="/posts/<%= post._id %>/comments/<%= comment._id %>/edit" class="edit-comment-link">
-                                <button class="edit-comment-btn">Edit</button>
+                                <button class="small-btn">Edit</button>
                             </a>
                             <form action="/posts/<%= post._id %>/comments/<%= comment._id %>?_method=DELETE" method="POST" style="display:inline;">
-                                <button type="submit" class="delete-comment-btn">Delete</button>
+                                <button type="submit" class="small-btn">Delete</button>
                             </form>
                         <% } %>
                     </div>
@@ -39,7 +39,7 @@
         <% if (user) { %>
             <form action="/posts/<%= post._id %>/comments" method="POST" class="add-comment-form"> 
                 <textarea name="content" required class="comment-input"></textarea>
-                <button type="submit" class="add-comment-btn">Add Comment</button>
+                <button type="submit" class="small-btn">Add Comment</button>
             </form>
         <% } %>
     </div>

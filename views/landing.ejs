@@ -22,9 +22,9 @@
                         <p class="blog-content"><%= blog.content %></p>
                         
                         <% if (user && user._id.toString() === blog.user.toString()) { %> 
-                            <a href="/blogs/<%= blog._id %>/edit"><button class="edit-button">Edit</button></a>
+                            <a href="/blogs/<%= blog._id %>/edit"><button class="small-btn">Edit</button></a>
                             <form action="/blogs/<%= blog._id %>?_method=DELETE" method="POST" style="display:inline;">
-                                <button type="submit" class="delete-button">Delete</button>
+                                <button type="submit" class="small-btn">Delete</button>
                             </form>
                         <% } %>
                     <% } else { %>

@@ -14,8 +14,7 @@ const blogsController = require('./controllers/blog.js');
 const app = express();
 const port = process.env.PORT || '3000';
 
-// Serve static files from the "styles" directory
-app.use(express.static(path.join(__dirname, 'styles'))); // Serve static files
+app.use('/styles', express.static('styles'));
 
 //============= MIDDLEWARE SETUP ================//
 app.use(express.json());

@@ -1,17 +1,29 @@
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Roboto', sans-serif;
+  background-color: #f4f4f4;
   margin: 0;
-  padding: 0;
-  background-color: #f5f5f5; 
+  padding: 20px;
+}
+
+h1 {
+  text-align: center;
+  color: #DA291C;
+  margin-bottom: 20px;
+}
+
+h4 {
+  color: #333;
 }
 
 nav {
-  background-color: #c8102e;
-  padding: 10px 20px;
+  background-color: #DA291C;
+  padding: 15px;
+  border-radius: 0 0 8px 8px;
+  margin-bottom: 20px;
 }
 
 nav a {
-  color: white;
+  color: #fff;
   text-decoration: none;
   margin: 0 15px;
   font-weight: bold;
@@ -21,80 +33,105 @@ nav a:hover {
   text-decoration: underline;
 }
 
-.blog-container {
-  max-width: 800px;
-  margin: 20px auto;
-  padding: 20px;
-  background-color: white; 
-  border-radius: 8px; 
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.blog-post {
-  margin-bottom: 40px; 
-}
-
-.blog-post h1 {
-  font-size: 2em;
-  color: #c8102e;
-}
-
-.blog-post h6 {
-  color: #444;
-  margin: 5px 0 20px; 
-}
-
-.blog-post p {
-  line-height: 1.6;
-}
-
-/* Comments Section Styles */
-.comments-section {
-  border-top: 1px solid #ddd; 
-  padding-top: 20px;
-  margin-top: 20px;
-}
-
-.comment-item {
-  margin-bottom: 15px; 
-}
-
-.comment-item p {
-  margin: 5px 0;
-}
-
 form {
-  margin-top: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #333;
+}
+
+input[type="text"], textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
 }
 
 textarea {
+  resize: vertical;
+}
+
+button[type="submit"], button {
   width: 100%;
-  height: 80px;
-  padding: 10px;
-  border: 1px solid #ddd; 
-  border-radius: 4px; 
-}
-
-button {
-  background-color: #c8102e; 
-  color: white;
+  padding: 12px;
+  background-color: #DA291C;
+  color: #fff;
   border: none;
-  padding: 10px 15px;
   border-radius: 4px;
+  font-size: 16px;
   cursor: pointer;
+  transition: background-color 0.3s;
 }
 
-button:hover {
-  background-color: #a50a2e; 
+button[type="submit"]:hover, button:hover {
+  background-color: #a0231a;
 }
 
-/* Responsive Styles */
-@media (max-width: 600px) {
-  .blog-container {
-      padding: 10px;
-  }
+/* Styles for blog list */
+ul {
+  list-style: none;
+  padding: 0;
+}
 
-  nav {
-      padding: 5px 10px; 
-  }
+.blog-list {
+  max-width: 600px;
+  margin: 0 auto;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.blog-item {
+  margin-bottom: 20px;
+}
+
+.blog-item h2 {
+  margin: 0;
+  font-size: 24px;
+  color: #DA291C;
+}
+
+.blog-item p {
+  font-size: 16px;
+}
+
+/* Styles for comments section */
+.comments-section {
+  margin-top: 20px;
+  background: #fff;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.comment-item {
+  margin-bottom: 10px;
+}
+
+button[type="submit"].small-btn,
+button.small-btn {
+    width: auto; 
+    padding: 6px 12px; 
+    font-size: 14px; 
+    background-color: #DA291C;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button[type="submit"].small-btn:hover,
+button.small-btn:hover {
+    background-color: #a0231a; 
 }
